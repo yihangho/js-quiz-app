@@ -13,41 +13,17 @@
 		"choices": ["Yes", "No"],
 		"answer": 0
 	}];
-	var score, currentQuestion;
+	var score = 0, currentQuestion = 0;
+	var question = document.getElementById("question");
+	var choicesContainer = document.getElementById("choices-container");
+	var nextBtn = document.getElementById("next-btn");
 
-	(function Initialize() {
-		// Initialize global variable
-		score = currentQuestion = 0;
-		// Clear any elements inside body, if any
-		while (document.body.firstElementChild) { document.body.firstElementChild.remove(); }
+	nextBtn.addEventListener("click", NextBtnClickHandler);
 
-		// Initially, show a button for the user to start the quiz
-		var startBtn = document.createElement("button");
-		startBtn.innerHTML = "Start Quiz";
-		startBtn.addEventListener("click", startBtnClickHandler);
-		document.body.appendChild(startBtn);
-		function startBtnClickHandler() {
-			// Remove itself from the tree
-			startBtn.removeEventListener("click", arguments.callee);
-			startBtn.remove();
+	DisplayQuestion();
 
-			DrawUI();
-			DisplayQuestion(0);
-		}
-	})();
-
-	function DrawUI() {
-		var questionParagraph = document.createElement("p"); questionParagraph.id="question"; // The p that contains the question text
-		var choicesDiv = document.createElement("div"); choicesDiv.id="choices"; // The div that contains all the choices
-		var submitBtn = document.createElement("button"); submitBtn.innerHTML = "Submit"; // The next button
-		document.body.appendChild(questionParagraph);
-		document.body.appendChild(choicesDiv);
-		document.body.appendChild(submitBtn);
-		submitBtn.addEventListener("click", SubmitBtnClickHandler);
-	}
-
-	function SubmitBtnClickHandler() {
-		SubmitAnswer();
+	function NextBtnClickHandler() {
+		RecordAnswer();
 		currentQuestion++;
 		if (currentQuestion < questions.length) {
 			DisplayQuestion();
@@ -56,7 +32,7 @@
 		}
 	}
 
-	function SubmitAnswer() {
+	function RecordAnswer() {
 		var radio = document.getElementsByName("answer");
 		for (var i = 0; i < radio.length; i++) {
 			if (radio[i].checked) {
@@ -69,11 +45,14 @@
 	}
 
 	function DisplayQuestion() {
-		document.getElementById("question").innerHTML = questions[currentQuestion].question;
-		var radio = document.createElement("input"), div, span;
-		var choicesDiv = document.getElementById("choices");
+		// Update the question text
+		question.innerHTML = questions[currentQuestion].question;
+		
 		// Empty the choices
-		while (choicesDiv.firstElementChild) { choicesDiv.firstElementChild.remove(); }
+		while (choicesContainer.firstElementChild) { choicesContainer.firstElementChild.remove(); }
+
+		// Insert new choices
+		var radio = document.createElement("input"), div, span;
 		radio.type = "radio";
 		radio.name = "answer";
 		for (var i = 0; i < questions[currentQuestion].choices.length; i++) {
@@ -86,14 +65,12 @@
 			div = document.createElement("div");
 			div.appendChild(radio);
 			div.appendChild(span);
-			choicesDiv.appendChild(div);
+			choicesContainer.appendChild(div);
 		}
 	}
 
 	function DisplayScore() {
 		// Empty the tree again
-		while (document.body.firstElementChild) { document.body.firstElementChild.remove(); }
-
 		var p = document.createElement("p");
 		p.innerHTML = "Your score is " + score + "/" + questions.length;
 		document.body.appendChild(p);

@@ -1,0 +1,1 @@
+This app is an exercise suggested by a [JavaScript tutorial](http://javascriptissexy.com/how-to-learn-javascript-properly/).

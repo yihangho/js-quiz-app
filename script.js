@@ -1,4 +1,36 @@
 (function() {
+	// Cookie helper functions
+	var Cookie = {
+		// Note: name is case-sensitive here
+
+		// name should be a string
+		// value should be anything JSON stringifiable
+		// expiration should be a string, a Date, or null. Anything other than string or Date is considered null.
+		set: function(name, value, expiration) {
+			value = JSON.stringify(value);
+			var cookieString = name + "=" + value + ";";
+
+			if (typeof expiration == "string") {
+				cookieString += " expires=" + expiration;
+			} else if (expiration instanceof Date) {
+				cookieString += " expires=" + expiration.toUTCString();
+			}
+
+			document.cookie = cookieString;
+		},
+		// name should be a string
+		get: function(name) {
+			var cookie = document.cookie;
+			var startPos = cookie.indexOf(name + "=");
+			var endPos = cookie.indexOf(";", startPos);
+			if (endPos == -1) {
+				endPos = cookie.length;
+			}
+			var cookieSubstr = cookie.substring(startPos + name.length + 1, endPos);
+			return JSON.parse(cookieSubstr);
+		}
+	};
+
 	// The array that holds all the questions
 	var questions = [{
 		"question": "What is 1+1?",
@@ -16,7 +48,13 @@
 	var userAnswers = [];
 	var currentQuestion = 0;
 
+	// Sign in-related DOMs
+	var signinContainer = document.getElementById("signin");
+	var showRegistration = document.getElementById("show-registration-form");
+	var signinBtn = document.getElementById("signin-btn");
+
 	// Registration-related DOMs
+	var registrationContainer = document.getElementById("registration");
 	var registerBtn = document.getElementById("register-btn");
 
 	// Quiz-related DOMs
@@ -49,6 +87,40 @@
 		}
 	}
 
+	// Sign in
+	showRegistration.addEventListener("click", function(event) {
+		event.preventDefault();
+		signinContainer.classList.add("hidden");
+		registrationContainer.classList.remove("hidden");
+	});
+
+	signinBtn.addEventListener("click", function() {
+		var username = document.getElementById("signin-username").value;
+		var password = document.getElementById("signin-password").value;
+
+		if (database) {
+			var objectstore = database.transaction("users").objectStore("users");
+
+			request = objectstore.get(username);
+			request.onsuccess = function(event) {
+				if (event.target.result && event.target.result.username == username && event.target.result.password == password) {
+					signin(username);
+				} else {
+					document.getElementById("sigin-error").innerHTML = "Wrong username/password combination.";
+				}
+			};
+			request.onerror = function() {
+				document.getElementById("sigin-error").innerHTML = "Something went wrong. We cannot sign you in.";
+			}
+		}
+	});
+
+	function signin(username) {
+		Cookie.set("username", username, new Date().setTime(new Date().getTime() + 631138519494)); // 20 years from now
+		Initialize();
+	}
+
+	// Registration
 	registerBtn.addEventListener("click", function() {
 		var username = document.getElementById("registration-username").value;
 		var password = document.getElementById("registration-password").value;
@@ -62,6 +134,7 @@
 					request = objectstore.put({ username: username, password: password });
 					request.onsuccess = function() {
 						console.log("Registration success");
+						signin(username);
 					}
 					request.onerror = function(event) {
 						document.getElementById("registration-error").innerHTML = "Something went wrong. Registration failed.";
@@ -80,9 +153,12 @@
 	prevBtn.addEventListener("click", PrevBtnClickHandler);
 	nextBtn.addEventListener("click", NextBtnClickHandler);
 
-	Initialize();
-
 	function Initialize() {
+		// Hide user registration and sign in forms, show the quiz section
+		registrationContainer.classList.add("hidden");
+		signinContainer.classList.add("hidden");
+		quizContainer.classList.remove("hidden");
+
 		currentQuestion = 0;
 		DisplayQuestion();
 	}

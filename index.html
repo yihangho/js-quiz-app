@@ -6,7 +6,27 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<div id="registration">
+	<div id="signin">
+		<div id="sigin-error"></div>
+		
+		<div>
+			<label>Username:</label>
+			<input type="text" id="signin-username">
+		</div>
+
+		<div>
+			<label>Password:</label>
+			<input type="password" id="signin-password">
+		</div>
+
+		<div>
+			Don't have an account? <a href="#" id="show-registration-form">Click here</a> to register.
+		</div>
+		
+		<button id="signin-btn">Sign In</button>
+	</div>
+
+	<div id="registration" class="hidden">
 		<div id="registration-error"></div>
 		
 		<div>

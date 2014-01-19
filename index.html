@@ -6,7 +6,22 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<div id="quiz">
+	<div id="registration">
+		<div id="registration-error"></div>
+		
+		<div>
+			<label>Username:</label>
+			<input type="text" id="registration-username">
+		</div>
+
+		<div>
+			<label>Password:</label>
+			<input type="password" id="registration-password">
+		</div>
+		<button id="register-btn">Register</button>
+	</div>
+
+	<div id="quiz" class="hidden">
 		<p id="question"></p>
 		<div id="choices-container"></div>
 		<button id="prev-btn">Prev</button>

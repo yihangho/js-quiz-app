@@ -16,6 +16,9 @@
 	var userAnswers = [];
 	var currentQuestion = 0;
 
+	// Registration-related DOMs
+	var registerBtn = document.getElementById("register-btn");
+
 	// Quiz-related DOMs
 	var quizContainer = document.getElementById("quiz");
 	var question = document.getElementById("question");
@@ -27,6 +30,53 @@
 	var scoreContainer = document.getElementById("score");
 	var scoreSpan = document.getElementById("score-val");
 
+	// IndexedDB
+	var request = indexedDB.open("quiz", 1);
+	var database;
+	
+	request.onsuccess = function(event) {
+		database = event.target.result;
+	};
+
+	request.onerror = function(event) {
+		console.log("Error opening DB: " + event.target.errorCode);
+	};
+
+	request.onupgradeneeded = function(event) {
+		database = event.target.result;
+		if (!database.objectStoreNames.contains("users")) {
+			database.createObjectStore("users", { keyPath: "username" });
+		}
+	}
+
+	registerBtn.addEventListener("click", function() {
+		var username = document.getElementById("registration-username").value;
+		var password = document.getElementById("registration-password").value;
+
+		if (database) {
+			var objectstore = database.transaction("users", "readwrite").objectStore("users");
+
+			request = objectstore.get(username);
+			request.onsuccess = function(event) {
+				if (!event.target.result) {
+					request = objectstore.put({ username: username, password: password });
+					request.onsuccess = function() {
+						console.log("Registration success");
+					}
+					request.onerror = function(event) {
+						document.getElementById("registration-error").innerHTML = "Something went wrong. Registration failed.";
+					}
+				} else {
+					document.getElementById("registration-error").innerHTML = "Username taken. Choose another username.";
+				}
+			};
+			request.onerror = function() {
+				document.getElementById("registration-error").innerHTML = "Something went wrong. Registration failed.";
+			};
+		}
+	});
+
+	// TODO Use anon function
 	prevBtn.addEventListener("click", PrevBtnClickHandler);
 	nextBtn.addEventListener("click", NextBtnClickHandler);
 

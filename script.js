@@ -10,18 +10,28 @@
 			value = JSON.stringify(value);
 			var cookieString = name + "=" + value + ";";
 
+			var date = new Date();
+
 			if (typeof expiration == "string") {
-				cookieString += " expires=" + expiration;
+				date.parse(expiration)
+				cookieString += " expires=" + date.toUTCString() + ";";
+			} else if (typeof expiration == "number") {
+				date.setTime(expiration);
+				cookieString += " expires=" + date.toUTCString() + ";";
 			} else if (expiration instanceof Date) {
-				cookieString += " expires=" + expiration.toUTCString();
+				cookieString += " expires=" + expiration.toUTCString() + ";";
 			}
 
+			console.log(cookieString);
 			document.cookie = cookieString;
 		},
 		// name should be a string
 		get: function(name) {
 			var cookie = document.cookie;
 			var startPos = cookie.indexOf(name + "=");
+			if (startPos == -1) {
+				return null;
+			}
 			var endPos = cookie.indexOf(";", startPos);
 			if (endPos == -1) {
 				endPos = cookie.length;
@@ -74,6 +84,18 @@
 	
 	request.onsuccess = function(event) {
 		database = event.target.result;
+
+		// See if any user is already logged in.
+		var username = Cookie.get("username");
+		if (database && username) {
+			var objectstore = database.transaction("users").objectStore("users");
+			request = objectstore.get(username);
+			request.onsuccess = function(event) {
+				if (event.target.result) {
+					Initialize();
+				}
+			}
+		}
 	};
 
 	request.onerror = function(event) {
@@ -158,6 +180,12 @@
 		registrationContainer.classList.add("hidden");
 		signinContainer.classList.add("hidden");
 		quizContainer.classList.remove("hidden");
+
+		var username = Cookie.get("username");
+		if (!username) {
+			username = "Guest";
+		}
+		document.getElementById("username").innerHTML = username;
 
 		currentQuestion = 0;
 		DisplayQuestion();

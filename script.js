@@ -15,15 +15,27 @@
 	}];
 	var userAnswers = [];
 	var currentQuestion = 0;
+
+	// Quiz-related DOMs
+	var quizContainer = document.getElementById("quiz");
 	var question = document.getElementById("question");
 	var choicesContainer = document.getElementById("choices-container");
 	var prevBtn = document.getElementById("prev-btn");
 	var nextBtn = document.getElementById("next-btn");
 
+	// Score-related DOMs
+	var scoreContainer = document.getElementById("score");
+	var scoreSpan = document.getElementById("score-val");
+
 	prevBtn.addEventListener("click", PrevBtnClickHandler);
 	nextBtn.addEventListener("click", NextBtnClickHandler);
 
-	DisplayQuestion();
+	Initialize();
+
+	function Initialize() {
+		currentQuestion = 0;
+		DisplayQuestion();
+	}
 
 	function PrevBtnClickHandler() {
 		RecordAnswer();
@@ -81,6 +93,12 @@
 			div.appendChild(span);
 			choicesContainer.appendChild(div);
 		}
+
+		if (currentQuestion > 0) {
+			prevBtn.classList.remove("hidden");
+		} else {
+			prevBtn.classList.add("hidden");
+		}
 	}
 
 	function DisplayScore() {
@@ -90,8 +108,8 @@
 				score++;
 			}
 		}
-		var p = document.createElement("p");
-		p.innerHTML = "Your score is " + score + "/" + questions.length;
-		document.body.appendChild(p);
+		quizContainer.classList.add("hidden");
+		scoreSpan.innerHTML = score + "/" + questions.length;
+		scoreContainer.classList.remove("hidden");
 	}
 })();

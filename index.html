@@ -3,12 +3,20 @@
 <head>
 	<meta charset="utf-8">
 	<title>Quiz</title>
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<p id="question"></p>
-	<div id="choices-container"></div>
-	<button id="prev-btn">Prev</button>
-	<button id="next-btn">Next</button>
+	<div id="quiz">
+		<p id="question"></p>
+		<div id="choices-container"></div>
+		<button id="prev-btn">Prev</button>
+		<button id="next-btn">Next</button>
+	</div>
+
+	<div id="score" class="hidden">
+		You score is <span id="score-val"></span>
+	</div>
+
 	<script src="script.js"></script>
 </body>
 </html>
